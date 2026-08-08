@@ -26,7 +26,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://laptop-price-prediction-five.vercel.app/"
+        "https://laptop-price-prediction-five.vercel.app"
     ],
     allow_credentials=False,
     allow_methods=["*"],
