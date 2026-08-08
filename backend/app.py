@@ -2,11 +2,22 @@ from fastapi import FastAPI,HTTPException
 import numpy as np
 import pandas as pd
 import pickle
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
 from schemas import LaptopInput
 from utils import fetch_processor, categorize_os
-df = pickle.load(open("model/df.pkl", "rb"))
+
+
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_DIR = BASE_DIR/ "model"
+
+
+with open(MODEL_DIR/ 'pipe.pkl','rb') as f:
+    pipe = pickle.load(f)
+    
+with open(MODEL_DIR/ "df.pkl","rb") as f:
+    df = pickle.load(f)
 
 
 app = FastAPI(title="Laptop Price Prediction API")
@@ -21,8 +32,6 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-pipe = pickle.load(open("model/pipe.pkl", "rb"))
-df = pickle.load(open("model/df.pkl", "rb"))
 
 
 def validate_categories(input_df):
