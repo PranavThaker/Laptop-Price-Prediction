@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>LaptopPredict - Price Estimation Engine</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
+            rel="stylesheet" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet" />
+        <style>
+            .glass-card {
+                background: rgba(42, 42, 42, 0.4);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .input-glow {
+                transition: all 0.3s ease;
+            }
+
+            .input-glow:hover {
+                border-color: rgba(0, 219, 231, 0.5);
+                background: rgba(42, 42, 42, 0.6);
+            }
+
+            .input-glow:focus-within {
+                box-shadow: 0 0 15px rgba(0, 219, 231, 0.3);
+                border-color: #00dbe7;
+                background: rgba(42, 42, 42, 0.8);
+            }
+
+            .checkbox-anim {
+                transition: all 0.3s ease;
+            }
+
+            .checkbox-container:hover .checkbox-anim {
+                border-color: #00dbe7;
+                box-shadow: 0 0 8px rgba(0, 219, 231, 0.2);
+            }
+
+            .btn-glow {
+                box-shadow: 0 4px 20px rgba(0, 242, 255, 0.4);
+                transition: all 0.3s ease;
+            }
+
+            .btn-glow:hover {
+                box-shadow: 0 6px 25px rgba(0, 242, 255, 0.6);
+                filter: brightness(1.1);
+                transform: translateY(-2px);
+            }
+
+            .btn-glow:active {
+                transform: translateY(1px);
+            }
+
+            select option {
+                background-color: #1a1a1a;
+                color: #e5e2e1;
+            }
+        </style>
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        "colors": {
+                            "surface-container-lowest": "#0e0e0e",
+                            "outline": "#849495",
+                            "on-error-container": "#ffdad6",
+                            "on-tertiary": "#213145",
+                            "background": "#131313",
+                            "on-tertiary-fixed": "#0b1c30",
+                            "surface-container": "#201f1f",
+                            "inverse-surface": "#e5e2e1",
+                            "on-surface": "#e5e2e1",
+                            "primary-fixed-dim": "#00dbe7",
+                            "surface-variant": "#353534",
+                            "surface-container-high": "#2a2a2a",
+                            "surface-container-highest": "#353534",
+                            "on-primary-container": "#006a71",
+                            "on-surface-variant": "#b9cacb",
+                            "surface-container-low": "#1c1b1b",
+                            "outline-variant": "#3a494b",
+                            "surface": "#131313",
+                            "on-error": "#690005",
+                            "on-tertiary-container": "#516177",
+                            "surface-bright": "#393939",
+                            "tertiary-fixed-dim": "#b7c8e1",
+                            "on-secondary": "#263143",
+                            "surface-dim": "#131313",
+                            "primary": "#e1fdff",
+                            "inverse-on-surface": "#313030",
+                            "on-tertiary-fixed-variant": "#38485d",
+                            "tertiary": "#f5f7ff",
+                            "secondary-fixed-dim": "#bcc7de",
+                            "on-primary-fixed-variant": "#004f54",
+                            "inverse-primary": "#00696f",
+                            "on-background": "#e5e2e1",
+                            "primary-fixed": "#74f5ff",
+                            "on-secondary-fixed": "#111c2d",
+                            "surface-tint": "#00dbe7",
+                            "error-container": "#93000a",
+                            "on-primary": "#00363a",
+                            "error": "#ffb4ab",
+                            "primary-container": "#00f2ff",
+                            "on-primary-fixed": "#002022",
+                            "secondary-container": "#3e495d",
+                            "on-secondary-fixed-variant": "#3c475a",
+                            "tertiary-container": "#ccdcf6",
+                            "tertiary-fixed": "#d3e4fe",
+                            "secondary-fixed": "#d8e3fb",
+                            "on-secondary-container": "#aeb9d0",
+                            "secondary": "#bcc7de"
+                        },
+                        "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                        },
+                        "spacing": {
+                            "container-max": "1280px",
+                            "gutter": "24px",
+                            "stack-lg": "32px",
+                            "stack-md": "16px",
+                            "margin-desktop": "64px",
+                            "stack-sm": "8px",
+                            "margin-mobile": "20px"
+                        },
+                        "fontFamily": {
+                            "body-lg": ["Inter"],
+                            "headline-md": ["Inter"],
+                            "body-md": ["Inter"],
+                            "label-sm": ["JetBrains Mono"],
+                            "headline-lg": ["Inter"],
+                            "display-lg": ["Inter"],
+                            "headline-lg-mobile": ["Inter"]
+                        },
+                        "fontSize": {
+                            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                        }
+                    }
+                }
+            }
+        </script>
+    </head>
+
+    <body class="bg-background text-on-background min-h-screen flex flex-col font-body-lg">
+        <!-- TopNavBar -->
+        <header
+            class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-[0px_0px_15px_rgba(0,219,231,0.1)]">
+            <div
+                class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+                <div
+                    class="font-headline-lg-mobile md:font-display-lg text-headline-md md:text-headline-md tracking-tighter text-primary-fixed font-bold">
+                    LAPTOPREDICT
+                </div>
+                <nav class="hidden md:flex gap-8">
+                    <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-variant/50 transition-all duration-300 px-4 py-2 rounded-lg"
+                        href="#">Market Data</a>
+                    <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-variant/50 transition-all duration-300 px-4 py-2 rounded-lg"
+                        href="#">Hardware Index</a>
+                    <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-variant/50 transition-all duration-300 px-4 py-2 rounded-lg"
+                        href="#">Compare</a>
+                    <a class="font-body-md text-body-md text-primary border-b-2 border-primary pb-1 hover:bg-surface-variant/50 transition-all duration-300 px-4 py-2"
+                        href="#">Prediction History</a>
+                </nav>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button
+                        class="hidden md:block font-body-md text-body-md text-on-surface hover:text-primary transition-colors active:scale-95 transition-transform">Sign
+                        In</button>
+                    <button
+                        class="font-body-md text-body-md bg-primary-container text-on-primary-container px-4 py-2 md:px-6 md:py-2 rounded-full font-medium hover:bg-primary transition-colors active:scale-95 transition-transform whitespace-nowrap">Predict
+                        Now</button>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content -->
+        <main
+            class="flex-grow pt-24 md:pt-32 pb-margin-mobile md:pb-margin-desktop px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full flex flex-col items-center">
+            <div class="text-center mb-stack-md md:mb-stack-lg w-full max-w-3xl">
+                <h1
+                    class="font-headline-lg-mobile md:font-display-lg text-headline-lg-mobile md:text-display-lg text-on-surface mb-stack-sm">
+                    Hardware Price Estimation</h1>
+                <p class="font-body-md md:font-body-lg text-body-md md:text-body-lg text-on-surface-variant">Input
+                    technical specifications below to generate a real-time, ML-driven price prediction for the
+                    configured laptop.</p>
+            </div>
+            <div
+                class="glass-card w-full max-w-4xl rounded-xl p-stack-md md:p-stack-lg shadow-2xl relative overflow-hidden">
+                <!-- Subtle background accent inside card -->
+                <div
+                    class="absolute -top-32 -right-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none">
+                </div>
+                <form class="space-y-stack-md md:space-y-stack-lg relative z-10 flex flex-col">
+                    <!-- Section 1: Basic Info -->
+                    <div>
+                        <h2
+                            class="font-headline-md text-headline-md text-primary-fixed border-b border-outline-variant pb-2 mb-stack-md flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-fixed"
+                                style="font-variation-settings: 'FILL' 1;">laptop_mac</span>
+                            Base Specifications
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Manufacturer</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select Company...</option>
+                                        <option value="apple">Apple</option>
+                                        <option value="dell">Dell</option>
+                                        <option value="hp">HP</option>
+                                        <option value="lenovo">Lenovo</option>
+                                        <option value="asus">Asus</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Form
+                                    Factor</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select Type...</option>
+                                        <option value="ultrabook">Ultrabook</option>
+                                        <option value="gaming">Gaming</option>
+                                        <option value="workstation">Workstation</option>
+                                        <option value="notebook">Standard Notebook</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Memory
+                                    (RAM)</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select RAM...</option>
+                                        <option value="8">8 GB</option>
+                                        <option value="16">16 GB</option>
+                                        <option value="32">32 GB</option>
+                                        <option value="64">64 GB</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Weight
+                                    (kg)</label>
+                                <div
+                                    class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A] flex items-center">
+                                    <span class="material-symbols-outlined pl-3 text-outline">scale</span>
+                                    <input
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 font-label-sm font-label-sm placeholder:text-outline-variant outline-none"
+                                        placeholder="e.g. 1.8" step="0.1" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Section 2: Display Specs -->
+                    <div>
+                        <h2
+                            class="font-headline-md text-headline-md text-primary-fixed border-b border-outline-variant pb-2 mb-stack-md flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-fixed"
+                                style="font-variation-settings: 'FILL' 1;">monitor</span>
+                            Display Architecture
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Screen
+                                    Size (inch)</label>
+                                <div
+                                    class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A] flex items-center">
+                                    <span class="material-symbols-outlined pl-3 text-outline">straighten</span>
+                                    <input
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 font-label-sm font-label-sm placeholder:text-outline-variant outline-none"
+                                        placeholder="e.g. 15.6" step="0.1" type="number" />
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Resolution</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select Resolution...</option>
+                                        <option value="1920x1080">1920x1080 (FHD)</option>
+                                        <option value="2560x1440">2560x1440 (QHD)</option>
+                                        <option value="3840x2160">3840x2160 (4K)</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center gap-4 bg-[#1A1A1A] p-4 rounded-lg border border-outline-variant checkbox-container cursor-pointer transition-colors hover:bg-surface-variant/50">
+                                <input
+                                    class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container focus:ring-offset-background bg-surface checkbox-anim outline-none cursor-pointer"
+                                    id="touchscreen" type="checkbox" />
+                                <label class="font-body-md text-on-surface cursor-pointer select-none flex-grow"
+                                    for="touchscreen">Touchscreen Capability</label>
+                            </div>
+                            <div
+                                class="flex items-center gap-4 bg-[#1A1A1A] p-4 rounded-lg border border-outline-variant checkbox-container cursor-pointer transition-colors hover:bg-surface-variant/50">
+                                <input
+                                    class="w-5 h-5 rounded border-outline-variant text-primary-container focus:ring-primary-container focus:ring-offset-background bg-surface checkbox-anim outline-none cursor-pointer"
+                                    id="ips" type="checkbox" />
+                                <label class="font-body-md text-on-surface cursor-pointer select-none flex-grow"
+                                    for="ips">IPS Panel</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Section 3: Internals -->
+                    <div>
+                        <h2
+                            class="font-headline-md text-headline-md text-primary-fixed border-b border-outline-variant pb-2 mb-stack-md flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-fixed"
+                                style="font-variation-settings: 'FILL' 1;">memory</span>
+                            Core Processing &amp; Storage
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Processor
+                                    (CPU)</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select CPU...</option>
+                                        <option value="intel_i5">Intel Core i5</option>
+                                        <option value="intel_i7">Intel Core i7</option>
+                                        <option value="intel_i9">Intel Core i9</option>
+                                        <option value="amd_r5">AMD Ryzen 5</option>
+                                        <option value="amd_r7">AMD Ryzen 7</option>
+                                        <option value="apple_m">Apple M-Series</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Graphics
+                                    (GPU)</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select GPU...</option>
+                                        <option value="intel_integrated">Intel Integrated</option>
+                                        <option value="amd_integrated">AMD Integrated</option>
+                                        <option value="nvidia_3050">NVIDIA RTX 3050</option>
+                                        <option value="nvidia_4060">NVIDIA RTX 4060</option>
+                                        <option value="nvidia_4080">NVIDIA RTX 4080</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Solid
+                                    State Drive (SSD)</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select SSD Capacity...</option>
+                                        <option value="0">None</option>
+                                        <option value="256">256 GB</option>
+                                        <option value="512">512 GB</option>
+                                        <option value="1024">1 TB</option>
+                                        <option value="2048">2 TB</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Hard
+                                    Disk Drive (HDD)</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select HDD Capacity...</option>
+                                        <option value="0">None</option>
+                                        <option value="1024">1 TB</option>
+                                        <option value="2048">2 TB</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2 md:col-span-2">
+                                <label
+                                    class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Operating
+                                    System</label>
+                                <div class="relative input-glow rounded-lg border border-outline-variant bg-[#1A1A1A]">
+                                    <select
+                                        class="w-full bg-transparent text-on-surface border-none focus:ring-0 p-3 appearance-none font-body-md cursor-pointer outline-none">
+                                        <option disabled="" selected="" value="">Select OS...</option>
+                                        <option value="windows">Windows</option>
+                                        <option value="macos">macOS</option>
+                                        <option value="linux">Linux</option>
+                                        <option value="none">No OS / DOS</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-3 text-outline pointer-events-none transition-transform duration-300">expand_more</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-stack-md flex justify-center">
+                        <button
+                            class="btn-glow bg-gradient-to-r from-primary-container to-primary-fixed text-on-primary-fixed font-headline-md text-headline-md py-4 px-8 md:px-12 rounded-xl flex items-center gap-3 w-full md:w-auto justify-center transition-all"
+                            type="button">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1;">analytics</span>
+                            Execute Price Prediction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer
+            class="bg-surface-container-lowest w-full py-stack-md md:py-stack-lg mt-stack-md md:mt-stack-lg border-t border-outline-variant">
+            <div
+                class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md text-center md:text-left">
+                <div class="font-headline-md text-on-surface font-semibold">
+                    LAPTOPREDICT
+                </div>
+                <div class="font-label-sm text-label-sm text-outline">
+                    © 2024 LaptopPredict AI. Precision hardware analytics.
+                </div>
+                <nav class="flex flex-wrap gap-4 justify-center md:justify-end">
+                    <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors hover:underline decoration-primary-fixed transition-all duration-200"
+                        href="#">Terms of Service</a>
+                    <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors hover:underline decoration-primary-fixed transition-all duration-200"
+                        href="#">Privacy Policy</a>
+                    <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors hover:underline decoration-primary-fixed transition-all duration-200"
+                        href="#">Hardware API</a>
+                    <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors hover:underline decoration-primary-fixed transition-all duration-200"
+                        href="#">Methodology</a>
+                    <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors hover:underline decoration-primary-fixed transition-all duration-200"
+                        href="#">Support</a>
+                </nav>
+            </div>
+        </footer>
+    </body>
+
+</html>
